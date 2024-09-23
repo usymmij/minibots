@@ -61,6 +61,10 @@ void loop() {
     int power = (int)buffer[len-1];
     leftComm = power >> 2;
     rightComm = power & 3;
+
+    leftComm = (-1 * (leftComm >> 1)) * (leftComm & 1);
+    rightComm = (-1 * (rightComm >> 1)) * (rightComm & 1);
+
     Serial.printf("comms\tleft: %d\tright: %d\n", leftComm, rightComm);
   }
   // disconnect if no packet received in a while
@@ -77,20 +81,18 @@ void loop() {
     showWarning = false;
   }
 
-  int leftValue = (-1 * (leftComm >> 1)) * (leftComm & 1);
-  if (leftValue != 0) { // if we are accelerating
+  if (leftComm != 0) { // if we are accelerating
     if (leftSpeed > -INERTIA && leftSpeed < INERTIA) { // while speed is within [-INERTIA, INERTIA]
-      leftSpeed += leftValue; // move speed in the direction we are changing
+      leftSpeed += leftComm; // move speed in the direction we are changing
     }
   }
   else if (leftSpeed != 0) { // if we are stoppping, and not already stopped
     leftSpeed -= leftSpeed > 0 ? 1 : -1; // stop
   }
  
-  int rightValue = (-1 * (rightComm >> 1)) * (rightComm & 1);
-  if (rightValue != 0) { 
+  if (rightComm != 0) { 
     if (rightSpeed > -INERTIA && rightSpeed < INERTIA) { 
-      rightSpeed += rightValue; 
+      rightSpeed += rightComm; 
     }
   }
   else if (rightSpeed != 0) {
