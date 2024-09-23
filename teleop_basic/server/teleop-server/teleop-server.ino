@@ -62,8 +62,8 @@ void loop() {
     leftComm = power >> 2;
     rightComm = power & 3;
 
-    leftComm = (-1 * (leftComm >> 1)) * (leftComm & 1);
-    rightComm = (-1 * (rightComm >> 1)) * (rightComm & 1);
+    leftComm = (leftComm >> 1 ? -1 : 1) * (leftComm & 1);
+    rightComm = (rightComm >> 1 ? -1 : 1) * (rightComm & 1);
 
     Serial.printf("comms\tleft: %d\tright: %d\n", leftComm, rightComm);
   }
@@ -99,10 +99,20 @@ void loop() {
     rightSpeed -= rightSpeed > 0 ? 1 : -1; 
   }
 
-  analogWrite(rightFwd, 0);
-  analogWrite(leftFwd, 0);
-  analogWrite(rightBwd, 0);
-  analogWrite(leftBwd, 0);
+  if (leftSpeed >= 0) {
+    analogWrite(leftFwd, int(MAXSPEED * leftSpeed / INERTIA ));
+    analogWrite(leftBwd, 0);
+  } else {
+    analogWrite(leftFwd, 0);
+    analogWrite(leftBwd, -int(MAXSPEED * leftSpeed / INERTIA ));
+  }
+  if (rightSpeed >= 0) {
+    analogWrite(rightFwd, int(MAXSPEED * rightSpeed / INERTIA ));
+    analogWrite(rightBwd, 0);
+  } else {
+    analogWrite(rightFwd, 0);
+    analogWrite(rightBwd, -int(MAXSPEED * rightSpeed / INERTIA ));
+  }
    
   Serial.printf("speed\tleft: %d\tright: %d\n", leftComm, rightComm);
 
